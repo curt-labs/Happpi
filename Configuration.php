@@ -20,7 +20,7 @@ class Configuration{
 	}
 
 	public function isIntegrated(){
-		return $this->isIntegrated;
+		return $this->integrated;
 	}
 }
 

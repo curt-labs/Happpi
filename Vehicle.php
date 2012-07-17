@@ -245,6 +245,8 @@ class Vehicle {
 	}
 
 
+
+
 	/*** Private Functions ***/
 	private function castToVehicle($obj){
 		$v = new Vehicle();
