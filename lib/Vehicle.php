@@ -1,16 +1,25 @@
 <?php
-
-include './helpers.php';
-include './Configuration.php';
-
+namespace happpi;
+if(!class_exists('Helper')){
+	include_once 'Helpers.php';
+}
+if(!class_exists('Configuration')){
+	include_once 'Configuration.php';
+}
 class Vehicle {
-
 	protected $config = null;
 	protected $helper = null;
 
 	// Vehicle Properties
-	private $id = 0;
+	private $vehicleID = 0;
 	private $mount = "";
+	// new properties
+	private $yearID = 0;
+	private $makeID = 0;
+	private $modelID = 0;
+	private $styleID = 0;
+	private $aaiaID = 0;
+	//more Vehicle Properties
 	private $year = 0;
 	private $make = "";
 	private $model = "";
@@ -19,13 +28,8 @@ class Vehicle {
 	private $drilling = "";
 	private $exposed = "";
 	private $attributes = array();
-
-	// Vehicle Property options
+	// keyvalue array of the two different types of mounts
 	private $mountOptions = array("rear" => "Rear Mount", "front" => "Front Mount");
-	private $yearOptions = array();
-	private $makeOptions = array();
-	private $modelOptions = array();
-	private $styleOptions = array();
 
 	public function __construct($mount = "", $year = 0, $make = "", $model = "", $style = ""){
 		$this->mount = $mount;
@@ -39,6 +43,7 @@ class Vehicle {
 	}
 
 	public function __destruct(){
+		
 		// Handle garbage cleanup
 	}
 
@@ -59,8 +64,113 @@ class Vehicle {
 	*/
 	public function setMount($mount = ""){
 		if($mount != $this->mount){
-			$this->mount = $mount;
+			$this->mount = urlencode($mount);
 		}
+	}
+
+
+	/**
+	 * [getYearID() description here]
+	 *
+	 * @return [type] [description]
+	 */
+	public function getYearID()
+	{
+	    return $this->yearID;
+	}
+	
+	/**
+	 * [setYearID() description here]
+	 *
+	 * @param  [type] $yearID [description]
+	 */
+	public function setYearID($newYearID)
+	{
+	    $this->yearID = $newYearID;
+	}
+
+
+	/**
+	 * [getMakeID() description here]
+	 *
+	 * @return [type] [description]
+	 */
+	public function getMakeID()
+	{
+	    return $this->makeID;
+	}
+	
+	/**
+	 * [setMakeID() description here]
+	 *
+	 * @param  [type] $makeID [description]
+	 */
+	public function setMakeID($newMakeID)
+	{
+	    $this->makeID = $newMakeID;
+	}
+
+
+	/**
+	 * [getModelID() description here]
+	 *
+	 * @return [type] [description]
+	 */
+	public function getModelID()
+	{
+	    return $this->modelID;
+	}
+	
+	/**
+	 * [setModelID() description here]
+	 *
+	 * @param  [type] $modelID [description]
+	 */
+	public function setModelID($newModelID)
+	{
+	    $this->modelID = $newModelID;
+	}
+
+
+	/**
+	 * [getStyleID() description here]
+	 *
+	 * @return [type] [description]
+	 */
+	public function getStyleID()
+	{
+	    return $this->styleID;
+	}
+	
+	/**
+	 * [setStyleID() description here]
+	 *
+	 * @param  [type] $styleID [description]
+	 */
+	public function setStyleID($newStyleID)
+	{
+	    $this->styleID = $newStyleID;
+	}
+
+
+	/**
+	 * [getAaiaID() description here]
+	 *
+	 * @return [type] [description]
+	 */
+	public function getAaiaID()
+	{
+	    return $this->aaiaID;
+	}
+	
+	/**
+	 * [setAaiaID() description here]
+	 *
+	 * @param  [type] $aaiaID [description]
+	 */
+	public function setAaiaID($newAaiaID)
+	{
+	    $this->aaiaID = $newAaiaID;
 	}
 
 	/*
@@ -126,7 +236,7 @@ class Vehicle {
 	*	@returns: string
 	*/
 	public function getStyle(){
-		return $this->model;
+		return $this->style;
 	}
 
 	/*
@@ -139,119 +249,149 @@ class Vehicle {
 		}
 	}
 
+	public function getVehicleID(){
+		return $this->vehicleID;
+	}
+
+	public function setVehicleID($vehicleID = 0){
+		if($vehicleID != $this->vehicleID){
+			$this->vehicleID = $vehicleID;
+		}
+	}
+
 	public function getMounts(){
 		return $this->mountOptions;
 	}
 
-	public function getYears(){
-		$request = $this->config->getDomain() . "GetYear?mount=" . $this->mount . "&dataType=" . $this->config->getDataType();
-		$response = $this->helper->curlGet($request);
+	//end of getters and setters
 
+	public function getYears(){
+		$request = $this->config->getDomain() . "GetYear?mount=" . $this->getMount() . "&dataType=" . $this->config->getDataType();
+		$response = $this->helper->curlGet($request);
 		return json_decode($response);
 	}
 
 	public function getMakes(){
-
 		$request = $this->config->getDomain() . "GetMake?mount=" . $this->mount;
 		$request .= "&year=" . $this->year;
 		$request .= "&dataType=" . $this->config->getDataType();
-
 		$resp = $this->helper->curlGet($request);
-
 		return json_decode($resp);
-
 	}
 
 	public function getModels(){
-
 		$request = $this->config->getDomain() . "GetModel?mount=" . $this->mount;
 		$request .= "&year=" . $this->year;
-		$request .= "&make=" . $this->make;
+		$request .= "&make=" . urlencode($this->make);
 		$request .= "&dataType=" . $this->config->getDataType();
-
 		$resp = $this->helper->curlGet($request);
-
 		return json_decode($resp);
-
 	}
 
 	public function getStyles(){
-
 		$request = $this->config->getDomain() . "GetStyle?mount=" . $this->mount;
 		$request .= "&year=" . $this->year;
-		$request .= "&make=" . $this->make;
-		$request .= "&model=" . $this->model;
+		$request .= "&make=" . urlencode($this->make);
+		$request .= "&model=" . urlencode($this->model);
 		$request .= "&dataType=" . $this->config->getDataType();
-
+		echo $request;
 		$resp = $this->helper->curlGet($request);
-
 		return json_decode($resp);
-
 	}
 
 	public function getVehicle(){
-
 		$req = $this->config->getDomain() . "GetVehicle";
 		$req .= "?year=" . $this->year;
-		$req .= "&make=" . $this->make;
-		$req .= "&model=" . $this->model;
-		$req .= "&style=" . $this->style;
+		$req .= "&make=" . urlencode($this->make);
+		$req .= "&model=" . urlencode($this->model);
+		$req .= "&style=" . urlencode($this->style);
 		$req .= "&dataType=" . $this->config->getDataType();
-
 		$resp = $this->helper->curlGet($req);
-
 		$obj_arr = json_decode($resp);
 		$vehicle_arr = array();
-
 		foreach ($obj_arr as $obj) {
 			$v = $this->castToVehicle($obj);
-			array_push($vehicle_arr, $v);
 		}
-		return $vehicle_arr;
+		return $v;
 	}
 
-	public function getVehiclesByPart($partID = 0){
-
+	public function getPartVehicles($partID = 0){
 		$req = $this->config->getDomain() . "GetPartVehicles";
 		$req .= "?dataType=" . $this->config->getDataType();
 		$req .= "&partID=" . $partID;
-
 		$resp = $this->helper->curlGet($req);
 		$vehicle_arr = array();
 		foreach (json_decode($resp) as $obj) {
 			$v = $this->castToVehicle($obj);
 			array_push($vehicle_arr, $v);
 		}
-
 		return $vehicle_arr;
 	}
 
-	public function getParts($vehicleID = 0, $mount = "", $year = "", $make = "", $model = "", $style = ""){
-		$req = "";
-		if($vehicleID > 0){
-			$req = $this->config->getDomain() . "GetParts";
-
-			$req .= "&dataType=" . $this->config->getDataType();
-		}else{
-
+	public function getParts(){
+		$req = $this->config->getDomain() . "GetParts";
+		$req .= "?year=" . $this->getYear();
+		if($this->getVehicleID() != ""){
+			$req .= "&vehicleID=" . $this->getVehicleID();
 		}
+		if($this->config->getCustomerID() != 0){
+			$req .= "&cust_id=" . $this->config->getCustomerID();
+		}
+		$req .= "&make=" . urlencode($this->getMake());
+		$req .= "&model=" . urlencode($this->getModel());
+		$req .= "&style=" . urlencode($this->getStyle());
+		$req .= "&dataType=" . urlencode($this->config->getDataType());
 		$resp = $this->helper->curlGet($req);
-		$part_arr = array();
-		foreach (json_decode($resp) as $part) {
-			$part_arr.push($part);
+		$parts_arr = array();
+		foreach (json_decode($resp) as $obj) {
+			$part = new Part();
+			$p = $part->castToPart($obj);
+			array_push($parts_arr, $p);
 		}
-
-		return $part_arr;
+		return $parts_arr;
 	}
 
+	public function getConnector(){
+		$req = $this->config->getDomain() . "GetConnector";
+		if($this->getVehicleID()!= 0){
+			$req .= "?vehicleID=" . $this->getVehicleID();
+		}else{
+			$req .= "?year=" . $this->year;
+			$req .= "&make=" . urlencode($this->make);
+			$req .= "&model=" . urlencode($this->model);
+			$req .= "&style=" . urlencode($this->style);
+		}
 
+		$req .= "&dataType=" . $this->config->getDataType();
+		$resp = $this->helper->curlGet($req);
+		$connector_arr = array();
+		foreach (json_decode($resp) as $obj) {
+			$part = new Part();
+			$p = $part->castToPart($obj);
+			array_push($connector_arr, $p);
+		}
+		return $connector_arr;
+	}
 
-
-	/*** Private Functions ***/
-	private function castToVehicle($obj){
+	public function castToVehicle($obj){
 		$v = new Vehicle();
 		if(isset($obj->mount)){
 			$v->setMount($obj->mount); 
+		}
+		if(isset($obj->yearID)){
+			$v->setYearID($obj->yearID);
+		}
+		if(isset($obj->makeID)){
+			$v->setMakeID($obj->makeID);
+		}
+		if(isset($obj->modelID)){
+			$v->setModelID($obj->modelID);
+		}
+		if(isset($obj->styleID)){
+			$v->setStyleID($obj->styleID);
+		}
+		if(isset($obj->aaiaID)){
+			$v->setAaiaID($obj->aaiaID);
 		}
 		if(isset($obj->year)){
 			$v->setYear($obj->year); 
@@ -266,7 +406,7 @@ class Vehicle {
 			$v->setStyle($obj->style); 
 		}
 		if(isset($obj->vehicleID)){
-			$v->id = $obj->vehicleID;
+			$v->vehicleID = $obj->vehicleID;
 		}
 		if(isset($obj->installTime)){
 			$v->installTime = $obj->installTime; 
@@ -280,10 +420,7 @@ class Vehicle {
 		if(isset($obj->attributes)){
 			$v->attributes = $obj->attributes; 
 		}
-
 		return $v;
-	}
-}
-
-
+	}// end castToVehicle function
+} // end of vehicle class
 ?>

@@ -1,11 +1,12 @@
 <?php
-
+namespace happpi;
 class Configuration{
 
 	private $domain = "http://api.curtmfg.com/v2/";
-	private $data_type = "json";
-	private $customerID = 0;
-	private $integrated = false;
+	private $data_type = "json"; // dont change this, it grabs all the data and converts them to php objects.
+	private $customerID = 1;
+	private $integrated = true;
+	private $key = "";
 
 	public function getDomain(){
 		return $this->domain;
@@ -22,6 +23,11 @@ class Configuration{
 	public function isIntegrated(){
 		return $this->integrated;
 	}
+
+	public function getKey(){
+		return $this->key;
+	}
+
 }
 
 ?>
