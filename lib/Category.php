@@ -3,11 +3,34 @@
 if(!class_exists('CurtHelper')){
 	require_once 'Helpers.php';
 }
-
 if(!class_exists('CurtConfiguration')){
 	require_once 'Configuration.php';
 }
 
+/**
+* Main Category class used to retrieve category data from The CURT REST API.
+*
+* Besides having methods for retrieving category data, it also represents a
+* basic Category Object. Some methods retreive Category objects, arrays of type 'Category object' or types of 
+* objects related to Category objects such as APICategory. 
+*
+* Any time you want to retrieve any type of Category Data: 
+*	1.Create a new Category object.
+*	2.Use setters to set any information that is needed for Category's 
+*	  methods such as $CurtCategory->setCatID(1); 
+*	3.Then after setting the value, you could use a method such as getCategory()
+*	  to retrieve a category with that catID you set earlier.
+* 
+* Example:
+* 	$category = new CurtCategory();
+* 	$category->setCatID(5);
+*	$Category = $category->getCategory();
+*   echo $Category->getCatTitle(); 
+*
+* Always make sure to refer to each method to see which values need to be passed
+* in via parameters as well as which values need to be set using a setter before hand.
+* Usually most values are passeed in via Setters.
+**/
 class CurtCategory {
 
 	protected $config = null;
