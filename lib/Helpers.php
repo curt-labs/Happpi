@@ -1,6 +1,5 @@
 <?php
-namespace happpi;
-class Helper{
+class CurtHelper{
 
 	public function curlGet($request = ""){
 		if(strlen($request) > 0){
@@ -40,4 +39,5 @@ class Helper{
 	} // end of curlPOST
 	
 }// end of Helper class
+
 ?>
