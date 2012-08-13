@@ -188,8 +188,9 @@ class CurtPart{
 		if($this->getPartID() > 0) {
 			$req = $this->config->getDomain() . "GetRelatedParts";
 			$req .= "?partID=" . $this->getPartID();
-			if($this->config->getCustomerID() > 0){$req .= "&cust_id=" . $this->config->getCustomerID();}
-			if($this->config->isIntegrated() == true){$req .= "&integrated=true";}
+			if($this->config->isIntegrated()){$req .= "&integrated=true";}
+			else{$req .= "&integrated=false";}
+			$req .= "&cust_id=" . $this->config->getCustomerID();
 			$req .= "&dataType=" . $this->config->getDataType();
 			$resp = $this->helper->curlGet($req); // raw response
 			$relatedParts_array = array(); // instaniate array of parts that are related	
@@ -202,10 +203,22 @@ class CurtPart{
 		}// end if
 	}
 
-	public function getPart(){
+	public function getPart($year=0, $make="", $model="", $style=""){
 		if($this->getPartID() > 0){
 			$req = $this->config->getDomain() . "GetPart";
 			$req .= "?partID=" . $this->getPartID();
+			if($year != 0 && $make !="" && $model!="" && $style !=""){
+				$req .= "&year=" . urlencode($year);
+				$req .= "&make=" . urlencode($make);
+				$req .= "&model=" . urlencode($model);
+				$req .= "&style=" . urlencode($style);
+			}
+			if($this->getVehicleID() > 0){
+				$req .= "&vehicleID=" . $this->vehicleID();
+			}
+			if($this->config->isIntegrated()){$req .= "&integrated=true";}
+			else{$req .= "&integrated=false";}
+			$req .= "&cust_id=" . $this->config->getCustomerID();
 			$req .= "&dataType=" . $this->config->getDataType();
 			$resp = $this->helper->curlGet($req);
 			return $this->castToPart(json_decode($resp));
@@ -246,6 +259,9 @@ class CurtPart{
 			$req .= "?catID=" . $catID;
 			$req .= "&page=" . $page;
 			$req .= "&perpage=" . $perpage;
+			if($this->config->isIntegrated()){$req .= "&integrated=true";}
+			else{$req .= "&integrated=false";}
+			$req .= "&cust_id=" . $this->config->getCustomerID();
 			$req .= "&dataType=" . $this->config->getDataType();
 			$resp = $this->helper->curlGet($req);
 			foreach (json_decode($resp) as $obj) { 
@@ -263,6 +279,9 @@ class CurtPart{
 			$req .= "?catName=" . $catName;
 			$req .= "&page=" . $page;
 			$req .= "&perpage=" . $perpage;
+			if($this->config->isIntegrated()){$req .= "&integrated=true";}
+			else{$req .= "&integrated=false";}
+			$req .= "&cust_id=" . $this->config->getCustomerID();
 			$req .= "&dataType=" . $this->config->getDataType();
 			$resp = $this->helper->curlGet($req);
 			foreach (json_decode($resp) as $obj) { 
@@ -281,6 +300,7 @@ class CurtPart{
 			$req .= "&status=" . $status;
 			if($this->config->isIntegrated()){$req .= "&integrated=true";}
 			else{$req .= "&integrated=false";}
+			$req .= "&cust_id=" . $this->config->getCustomerID();
 			$req .= "&dataType=" . $this->config->getDataType();
 			$resp = $this->helper->curlGet($req);
 			return $resp;
@@ -317,6 +337,9 @@ class CurtPart{
 	public function getLatestParts($count = 0){
 		$req = $this->config->getDomain() . "GetLatestParts";
 		$req .= "?count=" . $count;
+		if($this->config->isIntegrated()){$req .= "&integrated=true";}
+		else{$req .= "&integrated=false";}
+		$req .= "&cust_id=" . $this->config->getCustomerID();
 		$req .= "&dataType=" . $this->config->getDataType();
 		$resp = $this->helper->curlGet($req);
 		$Parts_array = array(); 
@@ -333,6 +356,7 @@ class CurtPart{
 			$req .= "?partID=" . $this->getPartID();
 			$req .= "&dataType=" . $this->config->getDataType();
 			$resp = $this->helper->curlGet($req);
+
 			$categories_array = array(); 
 			foreach (json_decode($resp) as $obj) { 
 				$c = new CurtAPICategory();
@@ -394,9 +418,9 @@ class CurtPart{
 		if($this->getPartID() > 0){
 			$req = $this->config->getDomain() . "GetPartImagesByIndex";
 			$req .= "?index=" . $index;
-			$req .= "&cust_id=" . $this->config->getCustomerID();
 			if($this->config->isIntegrated()){$req .= "&integrated=true";}
 			else{$req .= "&integrated=false";}
+			$req .= "&cust_id=" . $this->config->getCustomerID();
 			$req .= "&dataType=XML";
 			$resp = $this->helper->curlGet($req);
 			$reader = new XMLReader();
@@ -428,9 +452,9 @@ class CurtPart{
 	public function getDefaultPartImages(){
 		if($this->getPartID() > 0){
 			$req = $this->config->getDomain() . "GetDefaultPartImages";
-			$req .= "?cust_id=" . $this->config->getCustomerID();
 			if($this->config->isIntegrated()){$req .= "&integrated=true";}
 			else{$req .= "&integrated=false";}
+			$req .= "&cust_id=" . $this->config->getCustomerID();
 			$req .= "&dataType=XML";
 			$resp = $this->helper->curlGet($req);
 			$reader = new XMLReader();
@@ -462,6 +486,9 @@ class CurtPart{
 		if($date !=""){
 			$req = $this->config->getDomain() . "GetPartsByDateModified";
 			$req .= "?date=" . $date;
+			if($this->config->isIntegrated()){$req .= "&integrated=true";}
+			else{$req .= "&integrated=false";}
+			$req .= "&cust_id=" . $this->config->getCustomerID();
 			$req .= "&dataType=" . $this->config->getDataType();
 			$resp = $this->helper->curlGet($req);
 			$Parts_array = array(); 
@@ -479,6 +506,7 @@ class CurtPart{
 			$req .= "?partlist=" . $partList;
 			if($this->config->isIntegrated()){$req .= "&integrated=true";}
 			else{$req .= "&integrated=false";}
+			$req .= "&cust_id=" . $this->config->getCustomerID();
 			$req .= "&dataType=" . $this->config->getDataType();
 			$resp = $this->helper->curlGet($req);
 			$Parts_array = array(); 
@@ -488,6 +516,21 @@ class CurtPart{
 			}
 			return $Parts_array;
 		} // end if
+	}
+
+	public function getUnintegratedParts(){
+		if($this->config->getCustomerID() != 0){
+			$req = $this->config->getDomain() . "GetUnintegratedParts";
+			$req .= "&customerID=" . $this->config->getCustomerID();
+			$req .= "&dataType=" . $this->config->getDataType();
+			$resp = $this->helper->curlGet($req);
+			$Parts_array = array(); 
+			foreach (json_decode($resp) as $obj) { 
+				$p = $this->castToPart($obj); 
+				array_push($Parts_array, $p); 
+			}
+			return $Parts_array;
+		}
 	}
 
 	public function getSPGridData(){

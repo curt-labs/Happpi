@@ -331,12 +331,12 @@ class CurtVehicle {
 	public function getParts(){
 		$req = $this->config->getDomain() . "GetParts";
 		$req .= "?year=" . $this->getYear();
-		if($this->getVehicleID() != ""){
+		if($this->getVehicleID() != 0){
 			$req .= "&vehicleID=" . $this->getVehicleID();
 		}
-		if($this->config->getCustomerID() != 0){
-			$req .= "&cust_id=" . $this->config->getCustomerID();
-		}
+		if($this->config->isIntegrated()){$req .= "&integrated=true";}
+		else{$req .= "&integrated=false";}
+		$req .= "&cust_id=" . $this->config->getCustomerID(); 
 		$req .= "&make=" . urlencode($this->getMake());
 		$req .= "&model=" . urlencode($this->getModel());
 		$req .= "&style=" . urlencode($this->getStyle());
@@ -361,6 +361,9 @@ class CurtVehicle {
 			$req .= "&model=" . urlencode($this->model);
 			$req .= "&style=" . urlencode($this->style);
 		}
+		if($this->config->isIntegrated()){$req .= "&integrated=true";}
+		else{$req .= "&integrated=false";}
+		$req .= "&cust_id=" . $this->config->getCustomerID();
 
 		$req .= "&dataType=" . $this->config->getDataType();
 		$resp = $this->helper->curlGet($req);
