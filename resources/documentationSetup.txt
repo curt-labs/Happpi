@@ -1,0 +1,55 @@
+================================
+List of "Interaction Classes"
+================================
+CurtCategory
+	-> API Methods
+		->Return Type (link to Generic Class)
+		->Required Params/Values (Setters that need to be used)
+		->Optional Params/Values
+		->Examples (Gist)
+	-> Properties (Data Type / getter and setter usage)	
+CurtCustomer
+CurtPart
+CurtSearchResult
+CurtVehicle
+
+each of these contain API Methods (calls to the API) and return objects
+
+
+=============================
+Generic Classes/Objects
+=============================
+CurtAPICategory
+	-> Properties (Data Type / getter and setter usage) - if datatype is an object link 	   	            to generic object.
+CurtAPIContent
+CurtContent
+CurtContentBridges
+CurtContentType
+CurtFullCategory
+CurtHelper
+CurtImage
+CurtKeyValue
+CurtPartAndPrice
+CurtReview
+CurtSPGridData
+CurtSimplePart
+CurtSimplePricing
+CurtTrailer
+CurtVideo
+
+
+========================
+Misc. Classes
+========================
+CurtConfiguration 
+	-> Discription of each property and what not to change
+CurtHelper
+	->curl get/post required params
+	-> curlGet and curlPost examples
+
+
+========================
+Class hierarchy diagram
+========================
+Shows which objects contain which objects
+

@@ -352,7 +352,6 @@ class CurtCategory {
 	}
 
 	public function getCategories(){
-		if($this->getParentID() != 0){
 			$req = $this->config->getDomain() . "GetCategories";
 			$req .= "?parentID=" . $this->getParentID();
 			$req .= "&dataType=" . $this->config->getDataType();
@@ -364,7 +363,6 @@ class CurtCategory {
 				array_push($categories_array, $c); 
 			}
 			return $categories_array;	
-		} // end if
 	}
 
 	public function getLifestyle($lifestyleID = 0){

@@ -104,11 +104,11 @@ class CurtCustomer {
 	}
 
 	public function setCustomerPart($partID = 0, $customerPartID = 0){
-		if($this->getKey() !=""){
+		if($this->config->getKey() !=""){
 			$url = $this->config->getDomain() . "SetCustomerPart";
 			$fields = array(
 				'customerID'=>urlencode($this->config->getCustomerID()),
-				'key'=>urlencode($this->getKey()),
+				'key'=>urlencode($this->config->getKey()),
 				'partID'=>urlencode($partID),
 				'customerPartID'=>urlencode($customerPartID),
 				'dataType'=>urlencode($this->config->getDataType())
@@ -126,11 +126,11 @@ class CurtCustomer {
 		if($simplePricing != null){		
 			$spOld = $simplePricing;
 		}
-		if($this->getKey() !=""){
+		if($this->config->getKey() !=""){
 			$url = $this->config->getDomain() . "SetCustomerPartandPrice";
 			$fields = array(
 				'customerID'=>urlencode($this->config->getCustomerID()),
-				'key'=>urlencode($this->getKey()),
+				'key'=>urlencode($this->config->getKey()),
 				'partID'=>urlencode($spOld->getPartID()),
 				'customerPartID'=>urlencode($spOld->getCustPartID()),
 				'price'=>urlencode($spOld->getPrice()),
@@ -153,11 +153,11 @@ class CurtCustomer {
 	} // end of setCustomerPart
 
 	public function getPricing(){	
-		if($this->getKey() !=""){
+		if($this->config->getKey() !=""){
 			$url = $this->config->getDomain() . "GetPricing";
 			$fields = array(
 				'customerID'=>urlencode($this->config->getCustomerID()),
-				'key'=>urlencode($this->getKey()),
+				'key'=>urlencode($this->config->getKey()),
 				'dataType'=>urlencode($this->config->getDataType())
 				);
 			// curlPOST is important as the API only returns via POST for this method
@@ -177,11 +177,11 @@ class CurtCustomer {
 		if($simplePricing != null){		
 			$sp = $simplePricing;
 		}
-		if($this->getKey() !=""){
+		if($this->config->getKey() !=""){
 			$url = $this->config->getDomain() . "SetPrice";
 			$fields = array(		
 				'customerID'=>urlencode($this->config->getCustomerID()),
-				'key'=>urlencode($this->getKey()),
+				'key'=>urlencode($this->config->getKey()),
 				'partID'=>urlencode($sp->getPartID()),
 				'price'=>urlencode($sp->getPrice()),
 				'isSale'=>urlencode($sp->getIsSale()),

@@ -5,7 +5,7 @@ class CurtConfiguration{
 	private $domain = "http://api.curtmfg.com/v2/";
 	private $data_type = "json"; // dont change this, it grabs all the data and converts them to php objects.
 	private $customerID = 0;
-	private $integrated = false;
+	private $integrated = False;
 	private $key = "";
 
 	public function getDomain(){
