@@ -1,14 +1,37 @@
 <?php
-namespace happpi;
-if(!class_exists('Helper')){
-	include_once 'Helpers.php';
+
+if(!class_exists('CurtHelper')){
+	require_once 'Helpers.php';
 }
-if(!class_exists('Configuration')){
-	include_once 'Configuration.php';
+if(!class_exists('CurtConfiguration')){
+	require_once 'Configuration.php';
 }
 
-
-class Category {
+/**
+* Main Category class used to retrieve category data from The CURT REST API.
+*
+* Besides having methods for retrieving category data, it also represents a
+* basic Category Object. Some methods retreive Category objects, arrays of type 'Category object' or types of 
+* objects related to Category objects such as APICategory. 
+*
+* Any time you want to retrieve any type of Category Data: 
+*	1.Create a new Category object.
+*	2.Use setters to set any information that is needed for Category's 
+*	  methods such as $CurtCategory->setCatID(1); 
+*	3.Then after setting the value, you could use a method such as getCategory()
+*	  to retrieve a category with that catID you set earlier.
+* 
+* Example:
+* 	$category = new CurtCategory();
+* 	$category->setCatID(5);
+*	$Category = $category->getCategory();
+*   echo $Category->getCatTitle(); 
+*
+* Always make sure to refer to each method to see which values need to be passed
+* in via parameters as well as which values need to be set using a setter before hand.
+* Usually most values are passeed in via Setters.
+**/
+class CurtCategory {
 
 	protected $config = null;
 	protected $helper = null;
@@ -43,8 +66,8 @@ class Category {
 		$this->Lifestyle_Trailers = $Lifestyle_Trailers;
 		$this->ContentBridges = $ContentBridges;
 
-		$this->config = new Configuration;
-		$this->helper = new Helper;
+		$this->config = new CurtConfiguration;
+		$this->helper = new CurtHelper;
 	}
 
 	/**
@@ -322,26 +345,24 @@ class Category {
 			$req .= "?catID=" . $this->getCatID();
 			$req .= "&dataType=" . $this->config->getDataType();
 			$resp = $this->helper->curlGet($req);
-			$cat = new FullCategory();
+			$cat = new CurtFullCategory();
 			$cat = $cat->castToFullCategory(json_decode($resp));
 			return $cat;
 		}
 	}
 
 	public function getCategories(){
-		if($this->getParentID() != 0){
 			$req = $this->config->getDomain() . "GetCategories";
 			$req .= "?parentID=" . $this->getParentID();
 			$req .= "&dataType=" . $this->config->getDataType();
 			$resp = $this->helper->curlGet($req);
 			$categories_array = array(); 
 			foreach (json_decode($resp) as $obj) { 
-				$c = new APICategory();
+				$c = new CurtAPICategory();
 				$c = $c->castToAPICategory($obj);
 				array_push($categories_array, $c); 
 			}
 			return $categories_array;	
-		} // end if
 	}
 
 	public function getLifestyle($lifestyleID = 0){
@@ -350,7 +371,7 @@ class Category {
 			$req .= "?lifestyleid=" . $lifestyleID;
 			$req .= "&dataType=" . $this->config->getDataType();
 			$resp = $this->helper->curlGet($req);
-			$cat = new APICategory();
+			$cat = new CurtAPICategory();
 			$cat = $cat->castToAPICategory(json_decode($resp));
 			return $cat;
 		}
@@ -362,7 +383,7 @@ class Category {
 		$resp = $this->helper->curlGet($req);
 		$categories_array = array(); 
 			foreach (json_decode($resp) as $obj) { 
-				$c = new APICategory();
+				$c = new CurtAPICategory();
 				$c = $c->castToAPICategory($obj);
 				array_push($categories_array, $c); 
 			}
@@ -387,7 +408,7 @@ class Category {
 			$resp = $this->helper->curlGet($req);
 			$categories_array = array(); 
 			foreach(json_decode($resp) as $obj){ 
-				$c = new Category();
+				$c = new CurtCategory();
 				$c = $c->castToCategory($obj);
 				array_push($categories_array, $c); 
 			}
@@ -402,7 +423,7 @@ class Category {
 			$req .= "?catName=" . $catName;
 			$req .= "&dataType=" . $this->config->getDataType();
 			$resp = $this->helper->curlGet($req);
-			$cat = new FullCategory();
+			$cat = new CurtFullCategory();
 			$cat = $cat->castToFullCategory(json_decode($resp));
 			return $cat;
 		}
@@ -414,7 +435,7 @@ class Category {
 		$resp = $this->helper->curlGet($req);
 		$categories_array = array(); 
 		foreach(json_decode($resp) as $obj){ 
-			$c = new Category();
+			$c = new CurtCategory();
 			$c = $c->castToCategory($obj);
 			array_push($categories_array, $c); 
 		}
@@ -422,7 +443,7 @@ class Category {
 	}
 
 	public function castToCategory($obj){
-	$c = new Category();
+	$c = new CurtCategory();
 		if(isset($obj->catID)){
 			$c->catID = $obj->catID;
 		}
@@ -462,7 +483,7 @@ class Category {
 		if(isset($obj->ContentBridges)){
 			$ContentBridges_array = array();
 			foreach($obj->ContentBridges as $ContentBridge){
-				$cb = new ContentBridges();
+				$cb = new CurtContentBridges();
 				$cb = $cb->castToContentBridges($ContentBridge);
 				array_push($ContentBridges_array, $cb); 
 			}
@@ -472,7 +493,7 @@ class Category {
 	} 
 } // end of category class
 
-class ContentBridges {
+class CurtContentBridges {
 
 	private $cBridgeID = 0;
 	private $catID = 0;
@@ -618,7 +639,7 @@ class ContentBridges {
 	// end of getters and setters
 
 	public function castToContentBridges($obj){
-		$cb = new ContentBridges();
+		$cb = new CurtContentBridges();
 		if(isset($obj->cBridgeID)){
 			$cb->cBridgeID = $obj->cBridgeID;
 		}
@@ -632,7 +653,7 @@ class ContentBridges {
 			$cb->contentID = $obj->contentID;
 		}
 		if(isset($obj->Content)){
-			$c = new content();
+			$c = new CurtContent();
 			$cb->Content = $c->castToContent($obj->Content);
 		}
 		if(isset($obj->Part)){
@@ -642,7 +663,7 @@ class ContentBridges {
 	}
 } // end of ContentBridges class
 
-class Content {
+class CurtContent {
 	private $contentID = 0;
 	private $text = "";
 	private $cTypeID = 0;
@@ -741,7 +762,7 @@ class Content {
 	// end of getters and setters
 
 	public function castToContent($obj){
-		$c = new Content();
+		$c = new CurtContent();
 		if(isset($obj->contentID)){
 			$c->contentID = $obj->contentID;
 		}
@@ -752,14 +773,14 @@ class Content {
 			$c->cTypeID = $obj->cTypeID;
 		}
 		if(isset($obj->ContentType)){
-			$ct = new ContentType();
+			$ct = new CurtContentType();
 			$c->ContentType = $ct->castToContentType($obj->ContentType);
 		}																
 		return $c;
 	}
 }// end of Content class
 
-class ContentType{
+class CurtContentType{
 	private $cTypeID = 0;
 	private $type = "";
 	private $allowHTML = false;
@@ -833,7 +854,7 @@ class ContentType{
 	}
 
 	public function castToContentType($obj){
-		$ct = new ContentType();
+		$ct = new CurtContentType();
 		if(isset($obj->cTypeID)){
 			$ct->cTypeID = $obj->cTypeID;
 		}
@@ -847,7 +868,7 @@ class ContentType{
 	}
 } // end of ContentType class
 
-class FullCategory {
+class CurtFullCategory {
 	private $parent = null;
 	private $content = array();
 	private $sub_categories = array();
@@ -913,15 +934,15 @@ class FullCategory {
 	}
 
 	public function castToFullCategory($obj){
-		$fc = new FullCategory();
+		$fc = new CurtFullCategory();
 		if(isset($obj->parent)){
-			$cat = new Category();
+			$cat = new CurtCategory();
 			$fc->parent = $cat->castToCategory($obj->parent);
 		}
 		if(isset($obj->content)){
 			$apiCont_array = array();
 			foreach($obj->content as $cont){
-				$content = new APIContent();
+				$content = new CurtAPIContent();
 				$content = $content->castToAPIContent($cont);
 				array_push($apiCont_array, $content); 
 			}
@@ -930,7 +951,7 @@ class FullCategory {
 		if(isset($obj->sub_categories)){
 			$subCat_array = array();
 			foreach($obj->sub_categories as $sCat){
-				$subCat = new Category();
+				$subCat = new CurtCategory();
 				$subCat = $subCat->castToCategory($sCat);
 				array_push($subCat_array, $subCat); 
 			}
@@ -941,7 +962,7 @@ class FullCategory {
 	}
 }// end of FullCategory Class
 
-class APICategory {
+class CurtAPICategory {
 	
 	private $catID = 0;
 	private $dateAdded = "";
@@ -1217,7 +1238,7 @@ class APICategory {
 	}
 
 	public function castToAPICategory($obj){
-		$c = new APICategory();
+		$c = new CurtAPICategory();
 		if(isset($obj->catID)){
 			$c->catID = $obj->catID;
 		}
@@ -1248,7 +1269,7 @@ class APICategory {
 		if(isset($obj->content)){
 			$apiCont_array = array();
 			foreach($obj->content as $cont){
-				$content = new APIContent();
+				$content = new CurtAPIContent();
 				$content = $content->castToAPIContent($cont);
 				array_push($apiCont_array, $content); 
 			}
@@ -1257,7 +1278,7 @@ class APICategory {
 		if(isset($obj->towables)){
 			$towables_array = array();
 			foreach($obj->towables as $tow){
-				$towables = new Trailer();
+				$towables = new CurtTrailer();
 				$towables = $towables->castToTrailer($tow);
 				array_push($towables_array, $towables); 
 			}
@@ -1270,7 +1291,7 @@ class APICategory {
 	}
 } // end of APICategory Class
 
-class Trailer{
+class CurtTrailer{
 
 	private $trailerID = 0;
 	private $image = "";
@@ -1484,7 +1505,7 @@ class Trailer{
 	    $this->Lifestyle_Trailers = $newLifestyle_Trailers;
 	}
 	public function castToTrailer($obj){
-		$t = new Trailer();
+		$t = new CurtTrailer();
 		if(isset($obj->trailerID)){
 			$t->trailerID = $obj->trailerID;
 		}
@@ -1516,7 +1537,7 @@ class Trailer{
 	}
 } // end of Trailer Class
 
-class APIContent {
+class CurtAPIContent {
 	private $isHTML = false;
 	private $type = "";
 	private $content = "";
@@ -1588,7 +1609,7 @@ class APIContent {
 	}
 
 	public function castToAPIContent($obj){
-		$c = new APIContent();
+		$c = new CurtAPIContent();
 		if(isset($obj->isHTML)){
 			$c->isHTML = $obj->isHTML;
 		}

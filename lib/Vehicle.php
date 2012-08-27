@@ -1,12 +1,12 @@
 <?php
-namespace happpi;
-if(!class_exists('Helper')){
-	include_once 'Helpers.php';
+
+if(!class_exists('CurtHelper')){
+	require_once 'Helpers.php';
 }
-if(!class_exists('Configuration')){
-	include_once 'Configuration.php';
+if(!class_exists('CurtConfiguration')){
+	require_once 'Configuration.php';
 }
-class Vehicle {
+class CurtVehicle {
 	protected $config = null;
 	protected $helper = null;
 
@@ -38,8 +38,8 @@ class Vehicle {
 		$this->model = $model;
 		$this->style = $style;
 
-		$this->config = new Configuration;
-		$this->helper = new Helper;
+		$this->config = new CurtConfiguration;
+		$this->helper = new CurtHelper;
 	}
 
 	public function __destruct(){
@@ -331,12 +331,12 @@ class Vehicle {
 	public function getParts(){
 		$req = $this->config->getDomain() . "GetParts";
 		$req .= "?year=" . $this->getYear();
-		if($this->getVehicleID() != ""){
+		if($this->getVehicleID() != 0){
 			$req .= "&vehicleID=" . $this->getVehicleID();
 		}
-		if($this->config->getCustomerID() != 0){
-			$req .= "&cust_id=" . $this->config->getCustomerID();
-		}
+		if($this->config->isIntegrated()){$req .= "&integrated=true";}
+		else{$req .= "&integrated=false";}
+		$req .= "&cust_id=" . $this->config->getCustomerID(); 
 		$req .= "&make=" . urlencode($this->getMake());
 		$req .= "&model=" . urlencode($this->getModel());
 		$req .= "&style=" . urlencode($this->getStyle());
@@ -344,7 +344,7 @@ class Vehicle {
 		$resp = $this->helper->curlGet($req);
 		$parts_arr = array();
 		foreach (json_decode($resp) as $obj) {
-			$part = new Part();
+			$part = new CurtPart();
 			$p = $part->castToPart($obj);
 			array_push($parts_arr, $p);
 		}
@@ -361,12 +361,15 @@ class Vehicle {
 			$req .= "&model=" . urlencode($this->model);
 			$req .= "&style=" . urlencode($this->style);
 		}
+		if($this->config->isIntegrated()){$req .= "&integrated=true";}
+		else{$req .= "&integrated=false";}
+		$req .= "&cust_id=" . $this->config->getCustomerID();
 
 		$req .= "&dataType=" . $this->config->getDataType();
 		$resp = $this->helper->curlGet($req);
 		$connector_arr = array();
 		foreach (json_decode($resp) as $obj) {
-			$part = new Part();
+			$part = new CurtPart();
 			$p = $part->castToPart($obj);
 			array_push($connector_arr, $p);
 		}
@@ -374,7 +377,7 @@ class Vehicle {
 	}
 
 	public function castToVehicle($obj){
-		$v = new Vehicle();
+		$v = new CurtVehicle();
 		if(isset($obj->mount)){
 			$v->setMount($obj->mount); 
 		}

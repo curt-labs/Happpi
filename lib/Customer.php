@@ -1,12 +1,12 @@
 <?php
-namespace happpi;
-if(!class_exists('Helper')){
-	include_once 'Helpers.php';
+
+if(!class_exists('CurtHelper')){
+	require_once 'Helpers.php';
 }
-if(!class_exists('Configuration')){
-	include_once 'Configuration.php';
+if(!class_exists('CurtConfiguration')){
+	require_once 'Configuration.php';
 }
-class Customer {
+class CurtCustomer {
 
 	protected $config = null;
 	protected $helper = null;
@@ -18,8 +18,8 @@ class Customer {
 	private $website = "";
 
 	public function __construct($customerID = 0, $email = "", $name = "", $key = "", $website = ""){
-		$this->config = new Configuration;
-		$this->helper = new Helper;
+		$this->config = new CurtConfiguration;
+		$this->helper = new CurtHelper;
 
 		// try to grab the customerID from the config
 		if($this->config->getCustomerID() != 0){
@@ -104,33 +104,33 @@ class Customer {
 	}
 
 	public function setCustomerPart($partID = 0, $customerPartID = 0){
-		if($this->getKey() !=""){
+		if($this->config->getKey() !=""){
 			$url = $this->config->getDomain() . "SetCustomerPart";
 			$fields = array(
 				'customerID'=>urlencode($this->config->getCustomerID()),
-				'key'=>urlencode($this->getKey()),
+				'key'=>urlencode($this->config->getKey()),
 				'partID'=>urlencode($partID),
 				'customerPartID'=>urlencode($customerPartID),
 				'dataType'=>urlencode($this->config->getDataType())
 				);
 			// curlPOST is important as the API only returns via POST for this method
 			$resp = $this->helper->curlPOST($url, $fields);
-			$sPart = new SimplePart();
+			$sPart = new CurtSimplePart();
 			$sPart = $sPart->castToSimplePart(json_decode($resp));
 			return $sPart;
 		}
 	} // end of setCustomerPart
 
 	public function setCustomerPartAndPrice($simplePricing = null){
-		$spOld = new SimplePricing();
+		$spOld = new CurtSimplePricing();
 		if($simplePricing != null){		
 			$spOld = $simplePricing;
 		}
-		if($this->getKey() !=""){
+		if($this->config->getKey() !=""){
 			$url = $this->config->getDomain() . "SetCustomerPartandPrice";
 			$fields = array(
 				'customerID'=>urlencode($this->config->getCustomerID()),
-				'key'=>urlencode($this->getKey()),
+				'key'=>urlencode($this->config->getKey()),
 				'partID'=>urlencode($spOld->getPartID()),
 				'customerPartID'=>urlencode($spOld->getCustPartID()),
 				'price'=>urlencode($spOld->getPrice()),
@@ -141,9 +141,9 @@ class Customer {
 				);
 			// curlPOST is important as the API only returns via POST for this method
 			$resp = $this->helper->curlPOST($url, $fields);
-			$PaP = new PartAndPrice();
-			$sP = new SimplePricing();
-			$sPart = new SimplePart();
+			$PaP = new CurtPartAndPrice();
+			$sP = new CurtSimplePricing();
+			$sPart = new CurtSimplePart();
 			$resp = json_decode($resp);
 			$partObj = $sPart->castToSimplePart($resp[0]);
 			$priceObj = $sP->castToSimplePricing($resp[1]);
@@ -153,18 +153,18 @@ class Customer {
 	} // end of setCustomerPart
 
 	public function getPricing(){	
-		if($this->getKey() !=""){
+		if($this->config->getKey() !=""){
 			$url = $this->config->getDomain() . "GetPricing";
 			$fields = array(
 				'customerID'=>urlencode($this->config->getCustomerID()),
-				'key'=>urlencode($this->getKey()),
+				'key'=>urlencode($this->config->getKey()),
 				'dataType'=>urlencode($this->config->getDataType())
 				);
 			// curlPOST is important as the API only returns via POST for this method
 			$resp = $this->helper->curlPOST($url, $fields);
 			$pricing_array = array();
 			foreach (json_decode($resp) as $obj) {
-				$sP = new SimplePricing();
+				$sP = new CurtSimplePricing();
 				$sP = $sP->castToSimplePricing($obj);
 				array_push($pricing_array, $sP); 
 			}
@@ -173,15 +173,15 @@ class Customer {
 	} // end of get pricing
 
 	public function setPrice($simplePricing = null){
-		$sp = new SimplePricing();
+		$sp = new CurtSimplePricing();
 		if($simplePricing != null){		
 			$sp = $simplePricing;
 		}
-		if($this->getKey() !=""){
+		if($this->config->getKey() !=""){
 			$url = $this->config->getDomain() . "SetPrice";
 			$fields = array(		
 				'customerID'=>urlencode($this->config->getCustomerID()),
-				'key'=>urlencode($this->getKey()),
+				'key'=>urlencode($this->config->getKey()),
 				'partID'=>urlencode($sp->getPartID()),
 				'price'=>urlencode($sp->getPrice()),
 				'isSale'=>urlencode($sp->getIsSale()),
@@ -191,7 +191,7 @@ class Customer {
 				);
 			// curlPOST is important as the API only returns via POST for this method
 			$resp = $this->helper->curlPOST($url, $fields);	
-			$simpPrice = new SimplePricing();
+			$simpPrice = new CurtSimplePricing();
 			$simpPrice = $simpPrice->castToSimplePricing(json_decode($resp));
 			return $simpPrice;
 		}
@@ -208,7 +208,7 @@ class Customer {
 				);
 			// curlPOST is important as the API only returns via POST for this method
 			$resp = $this->helper->curlPOST($url, $fields);
-			$simpPrice = new SimplePricing();
+			$simpPrice = new CurtSimplePricing();
 			$simpPrice = $simpPrice->castToSimplePricing(json_decode($resp));
 			return $simpPrice;
 		} // end if
@@ -216,7 +216,7 @@ class Customer {
 
 	// returns an error
 	public function removeSale($simplePricing = null){
-		$sp = new SimplePricing();
+		$sp = new CurtSimplePricing();
 		if($simplePricing != null){		
 			$sp = $simplePricing;
 		}
@@ -238,7 +238,7 @@ class Customer {
 	}
 
 	public function castToCustomer($obj){
-		$c = new Customer();
+		$c = new CurtCustomer();
 		if(isset($obj->customerID)){		
 			$c->setCustomerID($obj->customerID); 
 		}
@@ -258,7 +258,7 @@ class Customer {
 	}
 } // end of Customer class
 
-class SimplePricing {
+class CurtSimplePricing {
 	
 	private $cust_id = 0;
 	private $custPartID = 0;
@@ -429,7 +429,7 @@ class SimplePricing {
 	// end of getters and setters
 
 	public function castToSimplePricing($obj){
-		$sP = new SimplePricing();
+		$sP = new CurtSimplePricing();
 		if(isset($obj->cust_id)){
 			$sP->setCust_id($obj->cust_id); 
 		}
@@ -455,7 +455,7 @@ class SimplePricing {
 	}
 } // end of SimplePricing class
 
-class SimplePart {
+class CurtSimplePart {
 	private $referenceID = 0;
 	private $partID = 0;
 	private $custPartID = 0;
@@ -552,7 +552,7 @@ class SimplePart {
 	}
 
 	public function castToSimplePart($obj){
-		$spart = new SimplePart();
+		$spart = new CurtSimplePart();
 		if(isset($obj->referenceID)){	
 			$spart->setReferenceID($obj->referenceID); 
 		}
@@ -569,7 +569,7 @@ class SimplePart {
 	}
 } // end of SimplePart class
 
-class PartAndPrice {
+class CurtPartAndPrice {
 	private $priceObj = null;
 	private $partObj = null;
 
@@ -622,7 +622,7 @@ class PartAndPrice {
 	public function castToPartAndPrice($priceObj, $partObj){
 		$this->setPriceObj($priceObj);
 		$this->setPartObj($partObj);
-		$PaP = new PartAndPrice();
+		$PaP = new CurtPartAndPrice();
 		if(isset($priceObj)){	
 			$PaP->setPriceObj($priceObj);
 		}

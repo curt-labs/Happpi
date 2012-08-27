@@ -1,12 +1,12 @@
 <?php
-namespace happpi;
-if(!class_exists('Helper')){
-	include_once 'Helpers.php';
+
+if(!class_exists('CurtHelper')){
+	require_once 'Helpers.php';
 }
-if(!class_exists('Configuration')){
-	include_once 'Configuration.php';
+if(!class_exists('CurtConfiguration')){
+	require_once 'Configuration.php';
 }
-class SearchResult {
+class CurtSearchResult {
 
 	protected $config = null;
 	protected $helper = null;
@@ -28,8 +28,8 @@ class SearchResult {
 		$this->long_description = $long_description;
 		$this->relevance = $relevance;
 
-		$this->config = new Configuration;
-		$this->helper = new Helper;
+		$this->config = new CurtConfiguration;
+		$this->helper = new CurtHelper;
 	}
 
 
@@ -189,7 +189,7 @@ class SearchResult {
 			$resp = $this->helper->curlGet($req);
 			$resultsArray = array();
 			foreach (json_decode($resp) as $obj){
-				$searchResult = new SearchResult;
+				$searchResult = new CurtSearchResult;
 				$sR = $searchResult->castToSearchResult($obj);
 				array_push($resultsArray, $sR);
 			}
@@ -208,7 +208,7 @@ class SearchResult {
 			$req .= "&dataType=" . $this->config->getDataType();
 			$resp = $this->helper->curlGet($req);
 			$Parts_array = array();
-			$Part = new Part();
+			$Part = new CurtPart();
 			foreach (json_decode($resp) as $obj) { 
 				$p = $Part->castToPart($obj); 
 				array_push($Parts_array, $p); 
@@ -218,7 +218,7 @@ class SearchResult {
 	}
 
 	public function castToSearchResult($obj){
-		$sR = new SearchResult();
+		$sR = new CurtSearchResult();
 		if(isset($obj->categoryID)){
 			$sR->setCategoryID($obj->categoryID); 
 		}

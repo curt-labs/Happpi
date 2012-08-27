@@ -1,11 +1,11 @@
 <?php
-namespace happpi;
-class Configuration{
+
+class CurtConfiguration{
 
 	private $domain = "http://api.curtmfg.com/v2/";
 	private $data_type = "json"; // dont change this, it grabs all the data and converts them to php objects.
-	private $customerID = 1;
-	private $integrated = true;
+	private $customerID = 0;
+	private $integrated = False;
 	private $key = "";
 
 	public function getDomain(){

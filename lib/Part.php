@@ -1,13 +1,13 @@
 <?php
-namespace happpi;
-if(!class_exists('Helper')){
-	include_once 'helpers.php';
+
+if(!class_exists('CurtHelper')){
+	require_once 'helpers.php';
 }
-if(!class_exists('Configuration')){
-	include_once 'Configuration.php';
+if(!class_exists('CurtConfiguration')){
+	require_once 'Configuration.php';
 }
 
-class Part{
+class CurtPart{
 	protected $config = null;
 	protected $helper = null;
 
@@ -39,8 +39,8 @@ class Part{
 		$this->partID = $partID;
 		$this->custPartID = $custPartID;
 		$this->status = $status;
-		$this->config = new Configuration;
-		$this->helper = new Helper;
+		$this->config = new CurtConfiguration;
+		$this->helper = new CurtHelper;
 	}
 
 	public function __destruct(){
@@ -188,8 +188,9 @@ class Part{
 		if($this->getPartID() > 0) {
 			$req = $this->config->getDomain() . "GetRelatedParts";
 			$req .= "?partID=" . $this->getPartID();
-			if($this->config->getCustomerID() > 0){$req .= "&cust_id=" . $this->config->getCustomerID();}
-			if($this->config->isIntegrated() == true){$req .= "&integrated=true";}
+			if($this->config->isIntegrated()){$req .= "&integrated=true";}
+			else{$req .= "&integrated=false";}
+			$req .= "&cust_id=" . $this->config->getCustomerID();
 			$req .= "&dataType=" . $this->config->getDataType();
 			$resp = $this->helper->curlGet($req); // raw response
 			$relatedParts_array = array(); // instaniate array of parts that are related	
@@ -202,10 +203,22 @@ class Part{
 		}// end if
 	}
 
-	public function getPart(){
+	public function getPart($year=0, $make="", $model="", $style=""){
 		if($this->getPartID() > 0){
 			$req = $this->config->getDomain() . "GetPart";
 			$req .= "?partID=" . $this->getPartID();
+			if($year != 0 && $make !="" && $model!="" && $style !=""){
+				$req .= "&year=" . urlencode($year);
+				$req .= "&make=" . urlencode($make);
+				$req .= "&model=" . urlencode($model);
+				$req .= "&style=" . urlencode($style);
+			}
+			if($this->getVehicleID() > 0){
+				$req .= "&vehicleID=" . $this->vehicleID();
+			}
+			if($this->config->isIntegrated()){$req .= "&integrated=true";}
+			else{$req .= "&integrated=false";}
+			$req .= "&cust_id=" . $this->config->getCustomerID();
 			$req .= "&dataType=" . $this->config->getDataType();
 			$resp = $this->helper->curlGet($req);
 			return $this->castToPart(json_decode($resp));
@@ -246,6 +259,9 @@ class Part{
 			$req .= "?catID=" . $catID;
 			$req .= "&page=" . $page;
 			$req .= "&perpage=" . $perpage;
+			if($this->config->isIntegrated()){$req .= "&integrated=true";}
+			else{$req .= "&integrated=false";}
+			$req .= "&cust_id=" . $this->config->getCustomerID();
 			$req .= "&dataType=" . $this->config->getDataType();
 			$resp = $this->helper->curlGet($req);
 			foreach (json_decode($resp) as $obj) { 
@@ -263,6 +279,9 @@ class Part{
 			$req .= "?catName=" . $catName;
 			$req .= "&page=" . $page;
 			$req .= "&perpage=" . $perpage;
+			if($this->config->isIntegrated()){$req .= "&integrated=true";}
+			else{$req .= "&integrated=false";}
+			$req .= "&cust_id=" . $this->config->getCustomerID();
 			$req .= "&dataType=" . $this->config->getDataType();
 			$resp = $this->helper->curlGet($req);
 			foreach (json_decode($resp) as $obj) { 
@@ -281,6 +300,7 @@ class Part{
 			$req .= "&status=" . $status;
 			if($this->config->isIntegrated()){$req .= "&integrated=true";}
 			else{$req .= "&integrated=false";}
+			$req .= "&cust_id=" . $this->config->getCustomerID();
 			$req .= "&dataType=" . $this->config->getDataType();
 			$resp = $this->helper->curlGet($req);
 			return $resp;
@@ -297,7 +317,7 @@ class Part{
 		$resp = $this->helper->curlGet($req);
 		$categories_array = array(); 
 		foreach(json_decode($resp) as $obj){ 
-			$c = new Category();
+			$c = new CurtCategory();
 			$c = $c->castToCategory($obj);
 			array_push($categories_array, $c); 
 		}
@@ -317,6 +337,9 @@ class Part{
 	public function getLatestParts($count = 0){
 		$req = $this->config->getDomain() . "GetLatestParts";
 		$req .= "?count=" . $count;
+		if($this->config->isIntegrated()){$req .= "&integrated=true";}
+		else{$req .= "&integrated=false";}
+		$req .= "&cust_id=" . $this->config->getCustomerID();
 		$req .= "&dataType=" . $this->config->getDataType();
 		$resp = $this->helper->curlGet($req);
 		$Parts_array = array(); 
@@ -333,9 +356,10 @@ class Part{
 			$req .= "?partID=" . $this->getPartID();
 			$req .= "&dataType=" . $this->config->getDataType();
 			$resp = $this->helper->curlGet($req);
+
 			$categories_array = array(); 
 			foreach (json_decode($resp) as $obj) { 
-				$c = new APICategory();
+				$c = new CurtAPICategory();
 				$c = $c->castToAPICategory($obj);
 				array_push($categories_array, $c); 
 			}
@@ -370,7 +394,7 @@ class Part{
 			$images_array = array();
 			$sort = "";
 			while ($reader->read()) {
-				$Image = new Image(); 
+				$Image = new CurtImage(); 
 				if ($reader->nodeType == XMLREADER::ELEMENT && $reader->depth == 1){
 						$sort = $reader->getAttribute("name");
 				} // end of depth 1
@@ -394,9 +418,9 @@ class Part{
 		if($this->getPartID() > 0){
 			$req = $this->config->getDomain() . "GetPartImagesByIndex";
 			$req .= "?index=" . $index;
-			$req .= "&cust_id=" . $this->config->getCustomerID();
 			if($this->config->isIntegrated()){$req .= "&integrated=true";}
 			else{$req .= "&integrated=false";}
+			$req .= "&cust_id=" . $this->config->getCustomerID();
 			$req .= "&dataType=XML";
 			$resp = $this->helper->curlGet($req);
 			$reader = new XMLReader();
@@ -404,7 +428,7 @@ class Part{
 			$images_array = array();
 			$imgPartID = 0;
 			while ($reader->read()){
-				$Image = new Image(); 
+				$Image = new CurtImage(); 
 				if ($reader->nodeType == XMLREADER::ELEMENT && $reader->depth == 1){
 						$imgPartID = $reader->getAttribute("partID");
 				} // end of depth 1
@@ -428,9 +452,9 @@ class Part{
 	public function getDefaultPartImages(){
 		if($this->getPartID() > 0){
 			$req = $this->config->getDomain() . "GetDefaultPartImages";
-			$req .= "?cust_id=" . $this->config->getCustomerID();
 			if($this->config->isIntegrated()){$req .= "&integrated=true";}
 			else{$req .= "&integrated=false";}
+			$req .= "&cust_id=" . $this->config->getCustomerID();
 			$req .= "&dataType=XML";
 			$resp = $this->helper->curlGet($req);
 			$reader = new XMLReader();
@@ -438,7 +462,7 @@ class Part{
 			$images_array = array();
 			$imgPartID = 0;
 			while ($reader->read()){
-				$Image = new Image(); 
+				$Image = new CurtImage(); 
 				if ($reader->nodeType == XMLREADER::ELEMENT && $reader->depth == 1){
 						$imgPartID = $reader->getAttribute("partID");
 				} // end of depth 1
@@ -462,6 +486,9 @@ class Part{
 		if($date !=""){
 			$req = $this->config->getDomain() . "GetPartsByDateModified";
 			$req .= "?date=" . $date;
+			if($this->config->isIntegrated()){$req .= "&integrated=true";}
+			else{$req .= "&integrated=false";}
+			$req .= "&cust_id=" . $this->config->getCustomerID();
 			$req .= "&dataType=" . $this->config->getDataType();
 			$resp = $this->helper->curlGet($req);
 			$Parts_array = array(); 
@@ -479,6 +506,7 @@ class Part{
 			$req .= "?partlist=" . $partList;
 			if($this->config->isIntegrated()){$req .= "&integrated=true";}
 			else{$req .= "&integrated=false";}
+			$req .= "&cust_id=" . $this->config->getCustomerID();
 			$req .= "&dataType=" . $this->config->getDataType();
 			$resp = $this->helper->curlGet($req);
 			$Parts_array = array(); 
@@ -490,13 +518,28 @@ class Part{
 		} // end if
 	}
 
+	public function getUnintegratedParts(){
+		if($this->config->getCustomerID() != 0){
+			$req = $this->config->getDomain() . "GetUnintegratedParts";
+			$req .= "&customerID=" . $this->config->getCustomerID();
+			$req .= "&dataType=" . $this->config->getDataType();
+			$resp = $this->helper->curlGet($req);
+			$Parts_array = array(); 
+			foreach (json_decode($resp) as $obj) { 
+				$p = $this->castToPart($obj); 
+				array_push($Parts_array, $p); 
+			}
+			return $Parts_array;
+		}
+	}
+
 	public function getSPGridData(){
 		if($this->getPartID() > 0){
 			$req = $this->config->getDomain() . "GetSPGridData";
 			$req .= "?partID=" . $this->getPartID();
 			$req .= "&dataType=" . $this->config->getDataType();
 			$resp = $this->helper->curlGet($req);
-			$spGridData = new SPGridData();
+			$spGridData = new CurtSPGridData();
 			return  $spGridData->castToSPGridData(json_decode($resp));
 		} // end if
 	}
@@ -527,7 +570,7 @@ class Part{
 			$resp = $this->helper->curlGet($req);
 			$reviews_array = array(); 
 			foreach (json_decode($resp) as $obj) { 
-				$r = new Review();
+				$r = new CurtReview();
 				$r = $r->castToReview($obj);
 				array_push($reviews_array, $r); 
 			}
@@ -536,7 +579,7 @@ class Part{
 	}
 
 	public function castToPart($obj){
-		$p = new Part();
+		$p = new CurtPart();
 		if(isset($obj->partID)){
 			$p->partID = $obj->partID;
 		}
@@ -564,7 +607,7 @@ class Part{
 		if(isset($obj->attributes)){
 			$attr_array = array();
 			foreach($obj->attributes as $attr){
-				$kv = new KeyValue();
+				$kv = new CurtKeyValue();
 				$kv = $kv->castToKeyValue($attr);
 				array_push($attr_array, $kv);
 			}
@@ -574,7 +617,7 @@ class Part{
 			$p->vehicleAttributes = $obj->vehicleAttributes;
 			$vAttr_array = array();
 			foreach($obj->vehicleAttributes as $vAttr){
-				$kv = new KeyValue();
+				$kv = new CurtKeyValue();
 				$kv = $kv->castToKeyValue($vAttr);
 				array_push($vAttr_array, $kv);
 			}
@@ -583,7 +626,7 @@ class Part{
 		if(isset($obj->content)){
 			$content_array = array();
 			foreach($obj->content as $cont){
-				$kv = new KeyValue();
+				$kv = new CurtKeyValue();
 				$kv = $kv->castToKeyValue($cont);
 				array_push($content_array, $kv);
 			}
@@ -593,7 +636,7 @@ class Part{
 			$p->pricing = $obj->pricing;
 			$pricing_array = array();
 			foreach($obj->pricing as $pricing){
-				$kv = new KeyValue();
+				$kv = new CurtKeyValue();
 				$kv = $kv->castToKeyValue($pricing);
 				array_push($pricing_array, $kv);
 			}
@@ -602,7 +645,7 @@ class Part{
 		if(isset($obj->reviews)){
 			$review_array = array();
 			foreach($obj->reviews as $review){
-				$r = new Review();
+				$r = new CurtReview();
 				$r = $r->castToReview($review);
 				array_push($review_array, $r); 
 			}
@@ -611,7 +654,7 @@ class Part{
 		if(isset($obj->images)){
 			$images_array = array();
 			foreach($obj->images as $image){
-				$i = new Image();
+				$i = new CurtImage();
 				$i = $i->castToImage($image);
 				array_push($images_array, $i); 
 			}
@@ -620,7 +663,7 @@ class Part{
 		if(isset($obj->videos)){
 			$videos_array = array();
 			foreach($obj->videos as $video){
-				$v = new Video();
+				$v = new CurtVideo();
 				$v = $v->castToVideo($video);
 				array_push($videos_array, $v); 
 			}
@@ -654,7 +697,7 @@ class Part{
 	}
 } // end of part class
 
-class SPGridData{
+class CurtSPGridData{
 	private $upc = "";
 	private $weight = "";
 	private $jobber = 0.00;
@@ -752,7 +795,7 @@ class SPGridData{
 	// end of getters and setters
 
 	public function castToSPGridData($obj){
-		$spgd = new SPGridData();
+		$spgd = new CurtSPGridData();
 		if(isset($obj->upc)){
 			$spgd->setUpc($obj->upc); 
 		}
@@ -769,7 +812,7 @@ class SPGridData{
 	}
 } // end of class
 
-class Review{
+class CurtReview{
 
 	private $reviewID = 0;
 	private $partID = 0;
@@ -957,7 +1000,7 @@ class Review{
 	// end of getters and setters
 
 	public function castToReview($obj){
-		$r = new Review();
+		$r = new CurtReview();
 		if(isset($obj->reviewID)){
 			$r->setReviewID($obj->reviewID); 
 		}
@@ -986,7 +1029,7 @@ class Review{
 	}
 } // end of class
 
-class Image{
+class CurtImage{
 
 	private $imageID = 0;
 	private $size = "";
@@ -1151,7 +1194,7 @@ class Image{
 	// end of getters and setters
 
 	public function castToImage($obj){
-		$i = new Image();
+		$i = new CurtImage();
 		if(isset($obj->imageID)){
 			$i->setImageID($obj->imageID); 
 		}
@@ -1177,7 +1220,7 @@ class Image{
 	}
 } // end of class
 
-class Video{
+class CurtVideo{
 	private $videoID = 0;
 	private $youTubeVideoID = "";
 	private $isPrimary = false;
@@ -1321,7 +1364,7 @@ class Video{
 	}
 
 	public function castToVideo($obj){
-		$v = new Video();
+		$v = new CurtVideo();
 		if(isset($obj->videoID)){
 			$v->setVideoID($obj->videoID); 
 		}
@@ -1344,7 +1387,7 @@ class Video{
 	} // end of castToVideo
 }// end of Video Class
 
-class KeyValue{
+class CurtKeyValue{
 
 	private $key;
 	private $value;
@@ -1404,7 +1447,7 @@ class KeyValue{
 	}
 
 	public function castToKeyValue($obj){
-		$kv = new KeyValue();
+		$kv = new CurtKeyValue();
 		if(isset($obj->key)){
 			$kv->setKey($obj->key); 
 		}
