@@ -294,7 +294,6 @@ class CurtVehicle {
 		$request .= "&make=" . urlencode($this->make);
 		$request .= "&model=" . urlencode($this->model);
 		$request .= "&dataType=" . $this->config->getDataType();
-		echo $request;
 		$resp = $this->helper->curlGet($request);
 		return json_decode($resp);
 	}
