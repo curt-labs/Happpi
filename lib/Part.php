@@ -276,7 +276,7 @@ class CurtPart{
 		$parts_array = array();
 		if($catName != "" && $perpage > 0){
 			$req = $this->config->getDomain() . "GetCategoryPartsByName";
-			$req .= "?catName=" . $catName;
+			$req .= "?catName=" . urlencode($catName);
 			$req .= "&page=" . $page;
 			$req .= "&perpage=" . $perpage;
 			if($this->config->isIntegrated()){$req .= "&integrated=true";}
@@ -415,7 +415,6 @@ class CurtPart{
 	}
 
 	public function getPartImagesByIndex($index = ""){
-		if($this->getPartID() > 0){
 			$req = $this->config->getDomain() . "GetPartImagesByIndex";
 			$req .= "?index=" . $index;
 			if($this->config->isIntegrated()){$req .= "&integrated=true";}
@@ -444,17 +443,16 @@ class CurtPart{
 				} // end of depth 2
 				
 			} // end while
+			
 			$reader->close();
 			return $images_array;
-		} // end if
 	}
 
 	public function getDefaultPartImages(){
-		if($this->getPartID() > 0){
 			$req = $this->config->getDomain() . "GetDefaultPartImages";
+			$req .= "?cust_id=" . $this->config->getCustomerID();
 			if($this->config->isIntegrated()){$req .= "&integrated=true";}
 			else{$req .= "&integrated=false";}
-			$req .= "&cust_id=" . $this->config->getCustomerID();
 			$req .= "&dataType=XML";
 			$resp = $this->helper->curlGet($req);
 			$reader = new XMLReader();
@@ -479,13 +477,12 @@ class CurtPart{
 			} // end while
 			$reader->close();
 			return $images_array;
-		} // end if
 	}
 
 	public function getPartsByDateModified($date = ""){
 		if($date !=""){
 			$req = $this->config->getDomain() . "GetPartsByDateModified";
-			$req .= "?date=" . $date;
+			$req .= "?date=" . urlencode($date);
 			if($this->config->isIntegrated()){$req .= "&integrated=true";}
 			else{$req .= "&integrated=false";}
 			$req .= "&cust_id=" . $this->config->getCustomerID();
@@ -521,8 +518,9 @@ class CurtPart{
 	public function getUnintegratedParts(){
 		if($this->config->getCustomerID() != 0){
 			$req = $this->config->getDomain() . "GetUnintegratedParts";
-			$req .= "&customerID=" . $this->config->getCustomerID();
+			$req .= "?customerID=" . $this->config->getCustomerID();
 			$req .= "&dataType=" . $this->config->getDataType();
+			echo $req;
 			$resp = $this->helper->curlGet($req);
 			$Parts_array = array(); 
 			foreach (json_decode($resp) as $obj) { 
