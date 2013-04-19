@@ -149,7 +149,7 @@ class CurtPart{
 
 	public function getRelatedCount(){
 
-		return $this->getRelatedCount();
+		return $this->getRelatedCount;
 	}
 
 	public function getInstallTime(){
