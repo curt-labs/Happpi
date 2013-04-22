@@ -6,7 +6,7 @@ class CurtConfiguration{
 	private $data_type = "json"; // dont change this, it grabs all the data and converts them to php objects.
 	private $customerID = 0;
 	private $integrated = False;
-	private $key = "";
+	private $key = "KEY_HERE";
 
 	public function getDomain(){
 		return $this->domain;
