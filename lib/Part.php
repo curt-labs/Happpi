@@ -149,12 +149,12 @@ class CurtPart{
 
 	public function getRelatedCount(){
 
-		return $this->getRelatedCount;
+		return $this->relatedCount;
 	}
 
 	public function getInstallTime(){
 
-		return $this->getInstallTime;
+		return $this->installTime;
 	}
 
 	public function getAverageReview(){
